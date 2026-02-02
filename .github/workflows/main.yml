@@ -3,7 +3,7 @@ name: Build WF
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   Build:
