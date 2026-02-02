@@ -14,6 +14,7 @@ jobs:
 
       - name: Maven build
         run: mvn install
+
   Testing:
     runs-on: ubuntu-latest
     needs: Build
