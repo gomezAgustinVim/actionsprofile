@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
   schedule:
-    - cron: "10 14 * * 1-5" # After noon 2:10 pm, Mondat to Friday
+    - cron: "10 20 * * 1-5"
 
 permissions:
   contents: read
@@ -47,14 +47,13 @@ jobs:
           fetch-depth: 0
 
       - name: Run tests on main branch
-        # if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         run: mvn test
 
       - name: Checkstyle
-        # if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         run: mvn checkstyle:checkstyle
 
-      # - name: Run tests on other branches
-      #   if: github.ref != 'refs/heads/main'
-      #   run: echo "Skipping unit tests and code analysis"
-
+      - name: Run tests on other branches
+        if: github.ref != 'refs/heads/main'
+        run: echo "Skipping unit tests and code analysis"
