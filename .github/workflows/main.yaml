@@ -1,0 +1,40 @@
+name: Vprofile CICD Workflow
+on:
+  push:
+    branches: [ "master", "develop" ]
+
+  pull_request:
+    branches: [ "master", "develop" ]
+
+  # workflow_dispatch:
+
+  # schedule:
+  #   - cron: "0 2 * * *"   # nightly run at 2 AM UTC
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Maven Build
+        run: mvn install
+
+
+  Testing:
+    runs-on: ubuntu-latest
+    needs: Build
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Run tests on master branch
+        run: mvn test
+
+      - name: Checkstyle
+        run: mvn checkstyle:checkstyle
