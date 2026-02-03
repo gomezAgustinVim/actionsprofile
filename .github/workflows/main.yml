@@ -1,5 +1,4 @@
-name: Build WF
-
+name: Build Job
 on:
   push:
     branches:
@@ -26,4 +25,4 @@ jobs:
         run: mvn test
 
       - name: Checkstyle
-        run: mvn checkstyle:check
+        run: mvn checkstyle:checkstyle
