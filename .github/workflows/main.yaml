@@ -1,16 +1,17 @@
 name: Vprofile CICD Workflow
-
 on:
   push:
-    branches: ["main", "develop"]
+    branches:
+      - master
 
   pull_request:
-    branches: ["main", "develop"]
+    branches:
+      - master
 
   workflow_dispatch:
 
   schedule:
-    - cron: "10 20 * * 1-5"
+    - cron: "10 20 * * 1-5" # After noon 2:10 pm, Mondat to Friday
 
 permissions:
   contents: read
@@ -35,7 +36,7 @@ jobs:
 
       - name: Notify if Build Fails
         if: failure()
-        run: echo "Build job failed! Check the logs."
+        run: echo "🚨 Build job failed! Please check logs."
 
   Testing:
     runs-on: ubuntu-latest
@@ -46,14 +47,40 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run tests on main branch
-        if: github.ref == 'refs/heads/main'
+      - name: Run tests on master branch
+        if: github.ref == 'refs/heads/master'
         run: mvn test
 
       - name: Checkstyle
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         run: mvn checkstyle:checkstyle
 
       - name: Run tests on other branches
-        if: github.ref != 'refs/heads/main'
+        if: github.ref != 'refs/heads/master'
         run: echo "Skipping unit tests and code analysis"
+
+  Security_Scan:
+    runs-on: ubuntu-latest
+    needs: Build
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: json
+          exit-code: 0
+          vuln-type: os,library
+          output: trivy-results.json
+
+      - name: Upload Trivy Scan results as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-results
+          path: trivy-results.json
+
